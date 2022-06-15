@@ -76,7 +76,7 @@ public class RealtimeApplication {
         return sse;
     }
 
-    @Scheduled(fixedDelay = 5000L)
+    @Scheduled(fixedDelay = 15000L)
     void periodicSignal() {
         localPushRegistry.keySet().forEach(this::publishHeartbeatMessageForClient);
     }

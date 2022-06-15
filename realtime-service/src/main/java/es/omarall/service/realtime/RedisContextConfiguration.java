@@ -28,7 +28,7 @@ public class RedisContextConfiguration {
                 .builder().pollTimeout(Duration.ofMillis(100)).build();
         StreamMessageListenerContainer<String, MapRecord<String, String, String>> container = StreamMessageListenerContainer.create(redisConnectionFactory,
                 containerOptions);
-        container.start();
+//        container.start();
         return container;
     }
 
