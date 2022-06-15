@@ -3,18 +3,17 @@ The goal is to implement a `presence platform` based on SSE and Redis (Streams, 
 
 ![Diagram](images/redis-presence.png)
 
-Realtime Platform will have two channels - Redis Streams -with the Presence Platform: 
-* `Heartbeat Upstream`: RT platform will periodically publish ONLINE client ids to the Presence Platform. [ id | server ]
-* `Presence Downstream`: Presence platfrom will publish `presence messages` [server: | clientId: | status: 'OFFLINE''] to that stream. 
+`Realtime Platform` will have two channels - Redis Streams -with the Presence Platform: 
+* `Heartbeat Upstream`: RT platform will periodically publish ONLINE client ids to the `Presence Platform`. [ client | server ]
+* `Presence Downstream`: Presence platform will publish to `presence.${server}` ->  [ client | status: ] . 
 
-Presence platform logic will be implemented as RedisGears functions, event processors. ¿Cómo puedo mostrar estos diagramas, ver en redisgears examples?
+`Presence platform` logic will be implemented as [RedisGears](https://oss.redis.com/redisgears) functions as event processors.
 
 1. Heartbeat upstream processor: `SET key: online.clients.id - value: server` + `EXPIRE key: online.clients.id 1.5 * d` where d is the heartbeat frequency
 2. Keyspace notifications subscriber:
         * on key expiration -> produce a presences message: [server: | clientId: | status: 'OFFLINE'']
         * on key creation -> produce a presences message: [server: | clientId: | status: 'ONLINE'']
         * on key update or key expiration update: do nothing. 
-NOTA: Cambiar Java. On every message in the presence stream, notifyClientStatusToAllBut the id in the PresenceMessage
 
 Useful Links: 
 * [Keyspace Notifications](https://redis.io/docs/manual/keyspace-notifications/)
@@ -29,3 +28,7 @@ Useful Links:
 
 [Timing of Expired Events](https://redis.io/docs/manual/keyspace-notifications/#timing-of-expired-events)
 
+
+## Standole Realtime - Local Push Registry
+`1.LOCAL_PRESENCE` branch contains the standalone realtime service with a local push registry, no redis configuration.  ``
+![3 client](./images/realtime-presence-1.gif)
