@@ -1,5 +1,7 @@
-# Description
+# Overview
 The goal is to implement a `presence platform` based on SSE and Redis (Streams, RedisGears, redisjson, ...)
+
+![Diagram](images/redis-presence.png)
 
 Realtime Platform will have two channels - Redis Streams -with the Presence Platform: 
 * `Heartbeat Upstream`: RT platform will periodically publish ONLINE client ids to the Presence Platform. [ id | server ]
@@ -26,3 +28,4 @@ Useful Links:
 > Key expiration IS NOT REAL TIME, while it seems like a real time if you try on local (small key), it’s already stated in the doc that the key might not be notified real time upon expiration event due to redis expiration logic (read the Timing of expired events section of the doc)
 
 [Timing of Expired Events](https://redis.io/docs/manual/keyspace-notifications/#timing-of-expired-events)
+

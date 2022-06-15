@@ -6,4 +6,4 @@ Current Status:
 * A client registers with a key and waits for other clients presence notifications
 
 
-![3 client](images/realtime-presence-1.gif)
+![3 client](../images/realtime-presence-1.gif)
