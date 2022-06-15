@@ -1,3 +1,15 @@
+server:
+  port: 8080
+spring:
+  name: realtime-platform
+  redis:
+    client-name: ${spring.name}
+    database: 0
+    host: localhost
+    #    port: 16379
+    #    password: mypass
+    timeout: 60000
+
 logging:
   level:
     es.omarall: DEBUG
