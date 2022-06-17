@@ -21,7 +21,7 @@ $ docker-compose up # --build
 You can use [RedisInsights](https://github.com/redisinsight/redisinsight) as GUI.
 in order to set:  `CONFIG SET notify-keyspace-events Kxs`
 
-[configuratino](https://redis.io/docs/manual/keyspace-notifications/#configuration):
+See the configuration description [here](https://redis.io/docs/manual/keyspace-notifications/#configuration).
 
 #### Load RG scripts
 In a given python virtual env, install requirements and run `init.py`. 
