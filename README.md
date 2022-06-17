@@ -15,6 +15,10 @@ The goal is to implement a `presence platform` based on SSE and Redis (Streams, 
         * on key creation -> produce a presences message to `presence.${server}`: [ client: | status: 'ONLINE'']
         * on key update or key expiration update: do nothing. 
 
+## Enable
+CONFIG SET notify-keyspace-events Kxs
+
+
 ## Must Read
 > Key expiration IS NOT REAL TIME, while it seems like a real time if you try on local (small key), it’s already stated in the doc that the key might not be notified real time upon expiration event due to redis expiration logic (read the Timing of expired events section of the doc)
 

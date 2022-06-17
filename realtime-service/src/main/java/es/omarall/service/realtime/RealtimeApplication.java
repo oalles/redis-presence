@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RealtimeApplication {
 
     private static final String HB_STREAM_KEY = "heartbeat";
-    private final String PRESENCE_STREAM_KEY_PREFIX = "presence.";
+    private final String PRESENCE_STREAM_KEY = "presence";
 
     public static void main(String[] args) {
         SpringApplication.run(RealtimeApplication.class, args);
@@ -36,20 +37,15 @@ public class RealtimeApplication {
 
     private final StringRedisTemplate redisTemplate;
 
-    private final String serverIdentifier;
-
     private final ObjectMapper objectMapper;
 
     private final Subscription subscription;
 
-    public RealtimeApplication(StringRedisTemplate redisTemplate, final ObjectMapper objectMapper,
+    public RealtimeApplication(StringRedisTemplate redisTemplate,
+                               final ObjectMapper objectMapper,
                                StreamMessageListenerContainer streamMessageListenerContainer) {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
-
-//        serverIdentifier = UUID.randomUUID().toString();
-        serverIdentifier = "1";
-        String PRESENCE_STREAM_KEY = PRESENCE_STREAM_KEY_PREFIX + serverIdentifier;
 
         this.subscription = streamMessageListenerContainer.receive(StreamOffset.latest(PRESENCE_STREAM_KEY),
                 (message) -> {
@@ -64,21 +60,34 @@ public class RealtimeApplication {
     }
 
     @GetMapping("/{name}")
-    SseEmitter presenceStream(@PathVariable String name) {
+    SseEmitter presenceStream(@PathVariable final String name) throws IOException {
         SseEmitter sse = new SseEmitter(Long.MAX_VALUE);
-        sse.onCompletion(() -> {
-            localPushRegistry.remove(name);
-            log.debug("SSE session removed for {} - Current Sessions count: {}", name, localPushRegistry.size());
-        });
+//        SseEmitter sse = new SseEmitter();
+        sse.onCompletion(() -> this.removeSession(name));
+        sse.onTimeout(() -> this.removeSession(name));
+        this.handleNewSession(name, sse);
+        return sse;
+    }
+
+    private void handleNewSession(String name, SseEmitter sse) {
         localPushRegistry.put(name, sse);
         log.debug("SSE session created for {} - Current Sessions count: {}", name, localPushRegistry.size());
         this.publishHeartbeatMessageForClient(name);
-        return sse;
+    }
+
+    private void removeSession(String name) {
+        localPushRegistry.remove(name);
+        log.debug("SSE session removed for {} - Current Sessions count: {}", name, localPushRegistry.size());
     }
 
     @Scheduled(fixedDelay = 15000L)
     void periodicSignal() {
-        localPushRegistry.keySet().forEach(this::publishHeartbeatMessageForClient);
+        localPushRegistry.keySet().parallelStream().forEach(this::publishHeartbeatMessageForClient);
+    }
+
+    @Scheduled(fixedDelay = 5000L)
+    void HB() {
+        localPushRegistry.keySet().parallelStream().forEach(this::sendUp);
     }
 
     /**
@@ -87,10 +96,20 @@ public class RealtimeApplication {
     private void publishHeartbeatMessageForClient(String clientId) {
         Heartbeat heartbeat = Heartbeat.builder()
                 .client(clientId)
-                .server(this.serverIdentifier)
                 .build();
         StringRecord record = StringRecord.of(this.objectMapper.convertValue(heartbeat, Map.class)).withStreamKey(HB_STREAM_KEY);
         redisTemplate.opsForStream().add(record);
+    }
+
+    /**
+     * Send ONLINE clients to a client with a given key.
+     */
+    private void sendUp(String clientId) {
+        try {
+            this.localPushRegistry.get(clientId).send("UP");
+        } catch (Throwable t) {
+            log.debug("Cannot notify HB to {}", clientId);
+        }
     }
 
     /**
