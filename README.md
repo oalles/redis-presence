@@ -12,16 +12,16 @@ and [KeySpace notification event processors](./presence-platform/rg-keyspace-not
 
 ## How to run 
 
-``bash
+```bash
 $ git clone https://github.com/oalles/redis-presence
 $ cd redis-presence/realtime-service;mvn clean install;cd ../deployment
-$ docker-compose up
-``
-
+$ docker-compose up # --build
+```
 #### Enable Key Space Notifications
+You can use [RedisInsights](https://github.com/redisinsight/redisinsight) as GUI.
+in order to set:  `CONFIG SET notify-keyspace-events Kxs`
 
-[configuratino](https://redis.io/docs/manual/keyspace-notifications/#configuration): 
-`CONFIG SET notify-keyspace-events Kxs`
+[configuratino](https://redis.io/docs/manual/keyspace-notifications/#configuration):
 
 #### Load RG scripts
 In a given python virtual env, install requirements and run `init.py`. 
