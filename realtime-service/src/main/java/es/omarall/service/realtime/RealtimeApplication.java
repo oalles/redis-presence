@@ -80,7 +80,7 @@ public class RealtimeApplication {
         log.debug("SSE session removed for {} - Current Sessions count: {}", name, localPushRegistry.size());
     }
 
-    @Scheduled(fixedDelay = 15000L)
+    @Scheduled(fixedDelay = 7000L)
     void periodicSignal() {
         localPushRegistry.keySet().parallelStream().forEach(this::publishHeartbeatMessageForClient);
     }

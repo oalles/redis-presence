@@ -10,10 +10,11 @@
     </parent>
     <groupId>es.omarall</groupId>
     <artifactId>realtime-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>latest</version>
     <properties>
         <java.version>11</java.version>
         <redis.version>2.7.0</redis.version>
+        <jib-maven-plugin.version>3.2.1</jib-maven-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -49,6 +50,38 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <!--							<goal>build</goal>-->
+                            <goal>dockerBuild</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!--					<to>-->
+                    <!--						<image>${env.IMAGE_REGISTRY_URI}/${project.name}:${project.version}</image>-->
+                    <!--						<auth>-->
+                    <!--							<username>${env.IMAGE_REGISTRY_USERNAME}</username>-->
+                    <!--							<password>${env.IMAGE_REGISTRY_PASSWORD}</password>-->
+                    <!--						</auth>-->
+                    <!--					</to>-->
+                    <from>
+                        <image>gcr.io/distroless/java:11</image>
+                    </from>
+                    <container>
+                        <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                        <jvmFlags>
+                            <jvmFlag>--enable-preview</jvmFlag>
+                        </jvmFlags>
+                    </container>
                 </configuration>
             </plugin>
         </plugins>

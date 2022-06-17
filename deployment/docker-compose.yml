@@ -8,3 +8,10 @@ services:
       - 6379:6379
     volumes:
       - ~/.myredis:/data
+  realtime-platform:
+    restart: always
+    image: "realtime-service:latest"
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_REDIS_HOST=redismod
