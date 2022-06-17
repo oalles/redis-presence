@@ -47,7 +47,7 @@ public class RealtimeApplication {
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
 
-        this.subscription = streamMessageListenerContainer.receive(StreamOffset.latest(PRESENCE_STREAM_KEY),
+        this.subscription = streamMessageListenerContainer.receive(StreamOffset.fromStart(PRESENCE_STREAM_KEY),
                 (message) -> {
                     try {
                         Presence presence = objectMapper.convertValue(message.getValue(), Presence.class);
